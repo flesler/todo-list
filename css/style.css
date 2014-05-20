@@ -1,0 +1,64 @@
+.home {
+	position: absolute;
+	top:6px;
+	right:15px;
+}
+
+.list-group {
+	margin-bottom:0 !important;
+	border-bottom: none !important;
+}
+
+.glyphicon {
+	cursor: pointer;
+}
+
+.glyphicon-home {
+	font-size:20px;
+	color:black;
+}
+
+.glyphicon-time {
+	color: #666;
+}
+.glyphicon-time:hover {
+	color:black;
+}
+
+.glyphicon-ok {
+	color:green;
+}
+.glyphicon-ok:hover {
+	color:darkgreen;
+}
+
+.glyphicon-ok,
+.glyphicon-time {
+	margin:0 20px;
+}
+
+.glyphicon-trash {
+	color:#F00;
+	float:right;
+}
+.glyphicon-trash:hover {
+	color: #A00;
+}
+
+.add-button {
+	cursor: pointer;
+	text-align:center;
+	color: green;
+	font-size:30px;
+	line-height: 25px;
+}
+.add-button:hover {
+	background: #EEE;
+}
+
+input {
+	font-family: monospace;
+	font-size: 13px;
+	background: none;
+	border: none;
+}
