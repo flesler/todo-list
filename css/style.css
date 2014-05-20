@@ -52,7 +52,7 @@
 }
 
 input {
-	font-family: monospace;
+	font-family: Consolas, monaco, monospace;
 	font-size: 13px;
 	background: none;
 	border: none;
