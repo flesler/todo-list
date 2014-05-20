@@ -1,8 +1,30 @@
 /** @jsx React.DOM */
 
+var App = React.createClass({
+	render: function() {
+		return <div className="main"> 
+						<div className="panel panel-default">
+							<Header />
+							<ToDoList app={this} />
+						</div>
+					</div>
+	}
+});
+
+var Header = React.createClass({
+	render: function() {
+		return <div className="panel-heading">
+				  	<h1 className="panel-title">To-do List</h1>
+				  	<a className="home" href="https://github.com/flesler/todo-list" target="_blank">
+				  		<Button type="home" />
+				  	</a>
+					</div>
+	}
+});
+
 var ToDoList = React.createClass({
 	getInitialState: function() {
-		return {tasks:this.ids()};
+		return {tasks:this.ids(), todo: null};
 	},
 
 	ids: function() {
@@ -25,11 +47,22 @@ var ToDoList = React.createClass({
 		this.setState({tasks: this.ids()});
 	},
 
+	setActive: function(todo) {
+		if (todo && this.state.todo) {
+			this.state.todo.onStop();
+		}
+		this.setState({todo:todo});
+	},
+
 	render: function() {
-		var flush = this.flush;
+		var mode = this.state.todo ? 'active' :
+			this.ids().length ? 'idle' : 'empty';
+		document.body.className = mode;
+
+		var list = this;
 		return <ul className="list-group"> 
 						{this.state.tasks.map(function(t) {
-							return <ToDo key={t.key} flush={flush} />
+							return <ToDo key={t.key} list={list} />
 						})}
 						<AddToDo handler={this.onAdd} />
 					</ul>
@@ -40,6 +73,12 @@ var ToDo = React.createClass({
 	getInitialState: function() {
 		var json = localStorage[this.props.key];
 		return JSON.parse(json);
+	},
+
+	componentDidMount: function() {
+		if (this.running()) {
+			this.props.list.setActive(this);
+		}
 	},
 
 	pad: function(n) {
@@ -58,7 +97,6 @@ var ToDo = React.createClass({
 
 	update: function(changes) {
 		this.setState(changes, function() {
-			console.log('save')
 			localStorage[this.props.key] = JSON.stringify(this.state);
 		}.bind(this));
 	},
@@ -73,17 +111,20 @@ var ToDo = React.createClass({
 	},
 
 	onStart: function() {
+		this.props.list.setActive(this);
 		this.update({startTime: Date.now()});
 	},
 
 	onStop: function() {
+		this.props.list.setActive(null);
+
 		var elapsed = Date.now() - this.state.startTime;
 		this.update({startTime: null, done: this.state.done + elapsed});
 	},
 
 	onDelete: function() {
 		delete localStorage[this.props.key];
-		this.props.flush();
+		this.props.list.flush();
 	},
 
 	onText: function(e) {
@@ -127,6 +168,6 @@ var Button = React.createClass({
 
 
 React.renderComponent(
-  <ToDoList />,
-  document.getElementById('app')
+  <App />,
+  document.body
 );
