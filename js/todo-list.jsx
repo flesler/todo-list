@@ -131,6 +131,11 @@ var ToDo = React.createClass({
 		this.update({text: e.target.value});
 	},
 
+	onAddTime: function(e) {
+		// Add a minute each time the accumulated time is clicked
+		this.update({done: this.state.done + 60 * 1000});
+	},
+
 	render: function() {
 		if (this.running()) {
 			clearTimeout(this.timeout);
@@ -140,7 +145,7 @@ var ToDo = React.createClass({
 		var text = this.state.text || 'Untitled';
 		return <li className={'list-group-item list-group-item-'+this.color()}>
 						<input value={text} onChange={this.onText} style={{width:text.length * 8 + 6}} />
-						<span className="label label-default">{this.format(this.state.done)}</span>
+						<span onClick={this.onAddTime} className="label label-default">{this.format(this.state.done)}</span>
 						{this.running() ? 
 							<Button type="ok" handler={this.onStop} /> :
 							<Button type="time" handler={this.onStart} />
@@ -150,6 +155,7 @@ var ToDo = React.createClass({
 							<span />
 						}
 						<Button type="trash" handler={this.onDelete} />
+						<Button type="trash" handler={this.onClear} />
 					 </li>;
 	}
 });

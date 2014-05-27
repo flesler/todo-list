@@ -51,6 +51,10 @@
 	background: #EEE;
 }
 
+.label.label-default {
+	cursor: pointer;
+}
+
 input {
 	font-family: Consolas, monaco, monospace;
 	font-size: 13px;
