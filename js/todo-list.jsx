@@ -131,9 +131,7 @@ var ToDo = React.createClass({
 		var text = this.state.text || '';
 		return <li className={'list-group-item list-group-item-'+this.color()}>
 						<input value={text} onChange={this.onText} style={{width:text.length * 8 + 6}} />
-						<span onClick={this.onAddTime} className="label label-default">
-							<ElapsedDisplay time={this.state.done} />
-						</span>
+						<ElapsedDisplay time={this.state.done} onClick={this.onAddTime} className="label label-default" />
 						{this.running() ? 
 							<Button type="ok" handler={this.onStop} /> :
 							<Button type="time" handler={this.onStart} />
@@ -177,7 +175,7 @@ var ElapsedDisplay = React.createClass({
 	},
 
 	render: function() {
-		return <i>{this.format(this.props.time)}</i>;
+		return this.transferPropsTo(<span>{this.format(this.props.time)}</span>);
 	}
 });
 
@@ -191,9 +189,7 @@ var ElapsedCounter = React.createClass({
 	},
 	
 	render: function() {
-		return <span className="label label-success">
-						<ElapsedDisplay time={Date.now() - this.props.startTime} />
-					 </span>
+		return <ElapsedDisplay className="label label-success" time={Date.now() - this.props.startTime} />
 	}
 });
 
