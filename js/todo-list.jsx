@@ -30,17 +30,16 @@ var ToDoList = React.createClass({
 	},
 
 	ids: function() {
-		var ids = [];
-		for (var key in localStorage) {
-			if (key.indexOf('task') === 0) {
-				ids.push({key:key});
-			}
-		}
-		return ids.sort().reverse();
+		var ids = Object.keys(localStorage).filter(function(key) {
+			return parseInt(key, 10);
+		});
+		return ids.sort(function(a, b) {
+			return b - a;
+		});
 	},
 
 	onAdd: function() {
-		var task = { key:'task'+Date.now(), text:'Untitled', done:0 };
+		var task = { key:Date.now(), text:'Untitled', done:0 };
 		localStorage[task.key] = JSON.stringify(task);
 		this.flush();
 	},
@@ -58,14 +57,14 @@ var ToDoList = React.createClass({
 
 	render: function() {
 		var mode = this.state.todo ? 'active' :
-			this.ids().length ? 'idle' : 'empty';
+			this.state.tasks.length ? 'idle' : 'empty';
 		document.body.className = mode;
 
 		var list = this;
 		return <ul className="list-group"> 
 						<AddToDo handler={this.onAdd} />
-						{this.state.tasks.map(function(t) {
-							return <ToDo key={t.key} list={list} />
+						{this.state.tasks.map(function(key) {
+							return <ToDo key={key} list={list} />
 						})}
 					</ul>
 	}
@@ -134,8 +133,8 @@ var ToDo = React.createClass({
 	},
 
 	onAddTime: function() {
-		// Add a minute each time the accumulated time is clicked
-		this.update({done: this.state.done + 60 * 1000});
+		// Add 5 minutes each time the accumulated time is clicked
+		this.update({done: this.state.done + 5 * 60 * 1000});
 	},
 
 	onClear: function() {
