@@ -1,5 +1,7 @@
 /** @jsx React.DOM */
 
+// TODO: Auto focus text when creating a task
+
 var App = React.createClass({
 	render: function() {
 		return <div className="main"> 
@@ -34,11 +36,11 @@ var ToDoList = React.createClass({
 				ids.push({key:key});
 			}
 		}
-		return ids;
+		return ids.sort().reverse();
 	},
 
 	onAdd: function() {
-		var task = { key:'task'+Date.now(), text:'', done:0 };
+		var task = { key:'task'+Date.now(), text:'Untitled', done:0 };
 		localStorage[task.key] = JSON.stringify(task);
 		this.flush();
 	},
@@ -61,10 +63,10 @@ var ToDoList = React.createClass({
 
 		var list = this;
 		return <ul className="list-group"> 
+						<AddToDo handler={this.onAdd} />
 						{this.state.tasks.map(function(t) {
 							return <ToDo key={t.key} list={list} />
 						})}
-						<AddToDo handler={this.onAdd} />
 					</ul>
 	}
 });
@@ -146,7 +148,7 @@ var ToDo = React.createClass({
 			this.timeout = setTimeout(this.forceUpdate.bind(this), 1000);
 		}
 
-		var text = this.state.text || 'Untitled';
+		var text = this.state.text || '';
 		return <li className={'list-group-item list-group-item-'+this.color()}>
 						<input value={text} onChange={this.onText} style={{width:text.length * 8 + 6}} />
 						<span onClick={this.onAddTime} className="label label-default">{this.format(this.state.done)}</span>

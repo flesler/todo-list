@@ -65,4 +65,5 @@ input {
 	font-size: 13px;
 	background: none;
 	border: none;
+	min-width:50px;
 }
