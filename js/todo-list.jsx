@@ -82,20 +82,6 @@ var ToDo = React.createClass({
 		}
 	},
 
-	pad: function(n) {
-		n = Math.floor(n);
-		return n < 10 ? '0'+n : n;
-	},
-
-	format: function(time) {
-		var sec = Math.floor(time / 1000);
-		var hour = Math.floor(sec / 3600);
-		sec = sec % 3600;
-		var min = Math.floor(sec / 60);
-		sec = sec % 60;
-		return [hour, min, sec].map(this.pad).join(':');
-	},
-
 	update: function(changes) {
 		this.setState(changes, function() {
 			localStorage[this.props.key] = JSON.stringify(this.state);
@@ -142,21 +128,18 @@ var ToDo = React.createClass({
 	},
 
 	render: function() {
-		if (this.running()) {
-			clearTimeout(this.timeout);
-			this.timeout = setTimeout(this.forceUpdate.bind(this), 1000);
-		}
-
 		var text = this.state.text || '';
 		return <li className={'list-group-item list-group-item-'+this.color()}>
 						<input value={text} onChange={this.onText} style={{width:text.length * 8 + 6}} />
-						<span onClick={this.onAddTime} className="label label-default">{this.format(this.state.done)}</span>
+						<span onClick={this.onAddTime} className="label label-default">
+							<ElapsedDisplay time={this.state.done} />
+						</span>
 						{this.running() ? 
 							<Button type="ok" handler={this.onStop} /> :
 							<Button type="time" handler={this.onStart} />
 						}
 						{this.running() &&
-							<span className="label label-success">{this.format(Date.now() - this.state.startTime)}</span>
+							<ElapsedCounter startTime={this.state.startTime} />
 						}
 						<Button type="trash" handler={this.onDelete} />
 						{!!this.state.done && 
@@ -178,6 +161,41 @@ var Button = React.createClass({
 	}
 });
 
+var ElapsedDisplay = React.createClass({
+	pad: function(n) {
+		n = Math.floor(n);
+		return n < 10 ? '0'+n : n;
+	},
+
+	format: function(time) {
+		var sec = Math.floor(time / 1000);
+		var hour = Math.floor(sec / 3600);
+		sec = sec % 3600;
+		var min = Math.floor(sec / 60);
+		sec = sec % 60;
+		return [hour, min, sec].map(this.pad).join(':');
+	},
+
+	render: function() {
+		return <i>{this.format(this.props.time)}</i>;
+	}
+});
+
+var ElapsedCounter = React.createClass({
+	componentDidMount: function() {
+		this.timeout = setInterval(this.forceUpdate.bind(this), 1000);
+	},
+
+	componentWillUnmount: function() {
+		clearTimeout(this.timeout);
+	},
+	
+	render: function() {
+		return <span className="label label-success">
+						<ElapsedDisplay time={Date.now() - this.props.startTime} />
+					 </span>
+	}
+});
 
 React.renderComponent(
   <App />,
