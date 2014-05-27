@@ -40,6 +40,11 @@
 	color: #A00;
 }
 
+.glyphicon-repeat {
+	float:right;
+	margin-right:10px;
+}
+
 .add-button {
 	cursor: pointer;
 	text-align:center;

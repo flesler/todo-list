@@ -131,9 +131,13 @@ var ToDo = React.createClass({
 		this.update({text: e.target.value});
 	},
 
-	onAddTime: function(e) {
+	onAddTime: function() {
 		// Add a minute each time the accumulated time is clicked
 		this.update({done: this.state.done + 60 * 1000});
+	},
+
+	onClear: function() {
+		this.update({done: 0});
 	},
 
 	render: function() {
@@ -150,12 +154,13 @@ var ToDo = React.createClass({
 							<Button type="ok" handler={this.onStop} /> :
 							<Button type="time" handler={this.onStart} />
 						}
-						{this.running() ?
-							<span className="label label-success">{this.format(Date.now() - this.state.startTime)}</span> :
-							<span />
+						{this.running() &&
+							<span className="label label-success">{this.format(Date.now() - this.state.startTime)}</span>
 						}
 						<Button type="trash" handler={this.onDelete} />
-						<Button type="trash" handler={this.onClear} />
+						{!!this.state.done && 
+							<Button type="repeat" handler={this.onClear} />
+						}
 					 </li>;
 	}
 });
