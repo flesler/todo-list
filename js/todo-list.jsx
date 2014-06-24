@@ -185,7 +185,7 @@ var EditableField = React.createClass({
 
 	render: function() {
 		var text = this.props.text || '';
-		var width = text.length * 7;
+		var width = text.length * 7 + 5;
 		return <input value={text} onKeyUp={this.onKeyUp} onFocus={this.onFocus} onChange={this.onChange} style={{width:width}} />;
 	}
 });
