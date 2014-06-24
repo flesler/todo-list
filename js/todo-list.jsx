@@ -29,6 +29,20 @@ var ToDoList = React.createClass({
 		return {tasks:this.ids(), todo: null};
 	},
 
+	componentDidMount: function() {
+		hub.on('add', this.onAdd);
+		hub.on('start', this.onStart);
+		hub.on('stop', this.onStop);
+		hub.on('remove', this.flush);
+	},
+
+	componentWillUnmount: function() {
+		hub.off('add', this.onAdd);
+		hub.off('start', this.onStart);
+		hub.off('stop', this.onStop);
+		hub.off('remove', this.flush);
+	},
+
 	ids: function() {
 		var ids = Object.keys(localStorage).filter(function(key) {
 			return parseInt(key, 10);
@@ -48,11 +62,15 @@ var ToDoList = React.createClass({
 		this.setState({tasks: this.ids()});
 	},
 
-	setActive: function(todo) {
-		if (todo && this.state.todo) {
+	onStart: function(todo) {
+		if (this.state.todo) {
 			this.state.todo.onStop();
 		}
 		this.setState({todo:todo});
+	},
+
+	onStop: function() {
+		this.setState({todo:null});
 	},
 
 	render: function() {
@@ -62,9 +80,9 @@ var ToDoList = React.createClass({
 
 		var list = this;
 		return <ul className="list-group"> 
-						<AddToDo handler={this.onAdd} />
+						<AddToDo />
 						{this.state.tasks.map(function(key) {
-							return <ToDo key={key} list={list} />
+							return <ToDo key={key} />
 						})}
 					</ul>
 	}
@@ -78,7 +96,7 @@ var ToDo = React.createClass({
 
 	componentDidMount: function() {
 		if (this.running()) {
-			this.props.list.setActive(this);
+			hub.emit('start', this);
 		}
 	},
 
@@ -98,12 +116,12 @@ var ToDo = React.createClass({
 	},
 
 	onStart: function() {
-		this.props.list.setActive(this);
+		hub.emit('start', this);
 		this.update({startTime: Date.now()});
 	},
 
 	onStop: function() {
-		this.props.list.setActive(null);
+		hub.emit('stop', this);
 
 		var elapsed = Date.now() - this.state.startTime;
 		this.update({startTime: null, done: this.state.done + elapsed});
@@ -111,11 +129,11 @@ var ToDo = React.createClass({
 
 	onDelete: function() {
 		delete localStorage[this.props.key];
-		this.props.list.flush();
+		hub.emit('remove', this);
 	},
 
-	onText: function(e) {
-		this.update({text: e.target.value});
+	onText: function(text) {
+		this.update({text: text});
 	},
 
 	onAddTime: function() {
@@ -130,7 +148,7 @@ var ToDo = React.createClass({
 	render: function() {
 		var text = this.state.text || '';
 		return <li className={'list-group-item list-group-item-'+this.color()}>
-						<input value={text} onChange={this.onText} style={{width:text.length * 8 + 6}} />
+						<EditableField text={text} onText={this.onText} />
 						<ElapsedDisplay time={this.state.done} onClick={this.onAddTime} className="label label-default" />
 						{this.running() ? 
 							<Button type="ok" handler={this.onStop} /> :
@@ -147,9 +165,38 @@ var ToDo = React.createClass({
 	}
 });
 
-var AddToDo = React.createClass({
+var EditableField = React.createClass({
+	onFocus: function(e) {
+		var field = e.target;
+		// Select all text on focus
+		setTimeout(function() { field.select();	}, 1);
+	},
+
+	onChange: function(e) {
+		this.props.onText(e.target.value);
+	},
+
+	onKeyUp: function(e) {
+		// Lose focus on enter or esc
+		if (e.which === 13 || e.which === 27) {
+			e.target.blur();
+		}
+	},
+
 	render: function() {
-		return <li className="add-button list-group-item" onClick={this.props.handler}><Button type="plus-sign" /></li>
+		var text = this.props.text || '';
+		var width = text.length * 7;
+		return <input value={text} onKeyUp={this.onKeyUp} onFocus={this.onFocus} onChange={this.onChange} style={{width:width}} />;
+	}
+});
+
+var AddToDo = React.createClass({
+	onAdd: function() {
+		hub.emit('add');
+	},
+
+	render: function() {
+		return <li className="add-button list-group-item" onClick={this.onAdd}><Button type="plus-sign" /></li>
 	}
 });
 
@@ -197,3 +244,5 @@ React.renderComponent(
   <App />,
   document.body
 );
+
+React.initializeTouchEvents(true);
