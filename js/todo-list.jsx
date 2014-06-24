@@ -169,7 +169,7 @@ var EditableField = React.createClass({
 	onFocus: function(e) {
 		var field = e.target;
 		// Select all text on focus
-		setTimeout(function() { field.select();	}, 1);
+		setTimeout(function() { field.select();	}, 50);
 	},
 
 	onChange: function(e) {
